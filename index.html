@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentinel-1 | Clínica Vida Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fa-solid fa-heart-pulse logo-icon"></i>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active"><i class="fa-solid fa-chart-pie"></i></a>
+                <a href="#" class="nav-item"><i class="fa-solid fa-user"></i></a>
+                <a href="#" class="nav-item"><i class="fa-solid fa-envelope"></i></a>
+                <a href="#" class="nav-item"><i class="fa-solid fa-calendar-alt"></i></a>
+                <a href="#" class="nav-item"><i class="fa-solid fa-file-alt"></i></a>
+            </nav>
+            <div class="logout">
+                <a href="#" class="nav-item"><i class="fa-solid fa-sign-out-alt"></i></a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="search-bar">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" placeholder="Search Sentinel Insights...">
+                </div>
+                <div class="user-profile">
+                    <div class="notification">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="badge">2</span>
+                    </div>
+                    <div class="profile-info">
+                        <img src="https://i.pravatar.cc/150?img=32" alt="Annette" class="avatar">
+                        <span class="name">Gerencia<i class="fa-solid fa-chevron-down"></i></span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Grid -->
+            <div class="grid-container">
+
+                <!-- ALERTA DE MARGEN (REGLA DE ORO) - TOP COLAPSADA -->
+                <div class="card alert-card-margin" id="marginAlert" style="border-left: 5px solid #ff4757; margin-bottom: 5px; padding-bottom: 0;">
+                    <div class="card-header" id="marginAlertHeader" style="cursor: pointer; padding-bottom: 20px;">
+                        <h3 style="color: #ff4757; margin: 0; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <span><i class="fa-solid fa-triangle-exclamation"></i> Sentinel-1: Alerta de Margen Crítico</span>
+                            <i class="fa-solid fa-chevron-down toggle-alert-icon" style="transition: transform 0.3s; color: #ff4757;"></i>
+                        </h3>
+                    </div>
+                    <div id="marginAlertBody" style="display: none; padding-top: 15px; border-top: 1px solid rgba(255, 71, 87, 0.2); padding-bottom: 20px;">
+                        <div class="alert-content">
+                            <p>El servicio de <strong>Laboratorio (Perfil Lipídico)</strong> ha caído al <strong>18.7%</strong> de margen.</p>
+                            <small>Causa: Incremento del 15% en el costo del reactivo 'X' reportado en el Drive hace 1 hora.</small>
+                        </div>
+                        <div class="alert-actions">
+                            <button class="btn-outline-danger">Ver Análisis de Proveedores</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Experiment Action Card (Hero) -->
+                <div class="card hero-card">
+                    <div class="card-header">
+                        <h3>Sentinel-1: Alerta Táctica (Mañana 08:00 AM)</h3>
+                        <span class="status-badge critical">Prioridad Alta</span>
+                    </div>
+                    <div class="hero-content">
+                        <div class="hero-text">
+                            <h4>Protocolo de Enrutamiento Rápido</h4>
+                            <p>El 30.4% de los recursos clínicos están saturados mientras que consultorios clave (101, 102) tienen 1.0 de disponibilidad. Redistribuir el tráfico de Radiología y Ginecología a estos consultorios reducirá drásticamente la tasa de No-Shows (actualmente 20%).</p>
+                            <div class="roi-projection">
+                                <div class="roi-item">
+                                    <span class="roi-label">Recuperación Diaria Proyectada</span>
+                                    <span class="roi-value positive">+$271,000 COP</span>
+                                </div>
+                                <div class="roi-item">
+                                    <span class="roi-label">Liquidez Liberada ("En Proceso")</span>
+                                    <span class="roi-value positive">+$967,500 COP</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="hero-action">
+                            <button class="btn-primary">Aprobar Instrucción a Recepción</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4 KPI Cards -->
+                <div class="kpi-grid">
+                    <div class="kpi-card purple">
+                        <div class="kpi-icon"><i class="fa-solid fa-money-bill-wave"></i></div>
+                        <h4>Ingresos Netos</h4>
+                        <h2>$8.65M</h2>
+                        <span class="trend neutral">Ultimo ciclo analizado</span>
+                    </div>
+                    <div class="kpi-card yellow">
+                        <div class="kpi-icon"><i class="fa-solid fa-clock"></i></div>
+                        <h4>Retraso Promedio</h4>
+                        <h2>10.2 min</h2>
+                        <span class="trend negative"><i class="fa-solid fa-arrow-up"></i> Crítico en operacion</span>
+                    </div>
+                    <div class="kpi-card green">
+                        <div class="kpi-icon"><i class="fa-solid fa-user-xmark"></i></div>
+                        <h4>Tasa de No-Shows</h4>
+                        <h2>20.0%</h2>
+                        <span class="trend negative"><i class="fa-solid fa-arrow-up"></i> Fuga de Ginec/Cardio</span>
+                    </div>
+                    <div class="kpi-card blue">
+                        <div class="kpi-icon"><i class="fa-solid fa-hospital"></i></div>
+                        <h4>Capacidad Ociosa</h4>
+                        <h2>30%</h2>
+                        <span class="trend positive"><i class="fa-solid fa-arrow-up"></i> Consultorios 101/102 vacíos</span>
+                    </div>
+                    <div class="kpi-card orange">
+                        <div class="kpi-icon"><i class="fa-solid fa-chart-line"></i></div>
+                        <h4>Margen Clínico</h4>
+                        <h2>32.4%</h2>
+                        <span class="trend positive"><i class="fa-solid fa-arrow-up"></i> +2.5% vs ayer</span>
+                    </div>
+                    <div class="kpi-card cyan">
+                        <div class="kpi-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                        <h4>Cobertura OpEx</h4>
+                        <h2>68%</h2>
+                        <span class="trend neutral">Faltan $2.1M para punto equilibr.</span>
+                    </div>
+                </div>
+
+                <!-- Capacity Donut Chart -->
+                <div class="card chart-card-small">
+                    <div class="card-header">
+                        <h3>Disponibilidad de Capacidad</h3>
+                        <div class="dropdown">Diario <i class="fa-solid fa-chevron-down"></i></div>
+                    </div>
+                    <div class="chart-container-donut">
+                        <canvas id="capacityChart"></canvas>
+                        <div class="donut-inner">
+                            <span class="donut-title">Saturado</span>
+                            <span class="donut-value">30%</span>
+                        </div>
+                    </div>
+                    <div class="chart-legend">
+                        <div class="legend-item"><span class="dot orange"></span>Saturado (0%)</div>
+                        <div class="legend-item"><span class="dot blue"></span>Subutilizado (100%)</div>
+                    </div>
+                </div>
+
+                <!-- Financial Chart -->
+                <div class="card chart-card-large">
+                    <div class="card-header">
+                        <h3>Facturación por Especialidad (Top 5)</h3>
+                        <div class="dropdown">Mensual <i class="fa-solid fa-chevron-down"></i></div>
+                    </div>
+                    <div class="chart-container-bar">
+                        <canvas id="financeChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- No-Show Impact -->
+                <div class="card list-card">
+                    <div class="card-header">
+                        <h3>Impacto Directo de No-Shows</h3>
+                        <div class="dropdown">Especialistas <i class="fa-solid fa-chevron-down"></i></div>
+                    </div>
+                    <div class="list-container">
+                        <div class="list-item">
+                            <div class="list-info">
+                                <div class="avatar-sm purple-bg">SB</div>
+                                <div>
+                                    <span class="list-name">Dra. Sofía Blanco</span>
+                                    <span class="list-desc">Ginecología | 3 No-Shows</span>
+                                </div>
+                            </div>
+                            <div class="list-amount negative">-$275,000</div>
+                        </div>
+                        <div class="list-item">
+                            <div class="list-info">
+                                <div class="avatar-sm yellow-bg">RR</div>
+                                <div>
+                                    <span class="list-name">Dr. Roberto Ruiz</span>
+                                    <span class="list-desc">Cardiología | 2 No-Shows</span>
+                                </div>
+                            </div>
+                            <div class="list-amount negative">-$350,000</div>
+                        </div>
+                        <div class="list-item">
+                            <div class="list-info">
+                                <div class="avatar-sm green-bg">HS</div>
+                                <div>
+                                    <span class="list-name">Dr. Hugo Sánchez</span>
+                                    <span class="list-desc">Ortopedia | 1 No-Show</span>
+                                </div>
+                            </div>
+                            <div class="list-amount negative">-$95,000</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monitor de Salud por Especialidad -->
+                <div class="card list-card">
+                    <div class="card-header">
+                        <h3>Salud por Especialidad (Monitor)</h3>
+                        <div class="dropdown">Margen <i class="fa-solid fa-chevron-down"></i></div>
+                    </div>
+                    <div class="list-container">
+                        <div class="list-item">
+                            <div class="list-info">
+                                <div class="status-dot green"></div>
+                                <div>
+                                    <span class="list-name">Radiología</span>
+                                    <span class="list-desc">Eficiencia: 94%</span>
+                                </div>
+                            </div>
+                            <div class="list-meta">
+                                <span class="badge-margin positive">38% Margen</span>
+                            </div>
+                        </div>
+                        <div class="list-item critical-row">
+                            <div class="list-info">
+                                <div class="status-dot red"></div>
+                                <div>
+                                    <span class="list-name">Laboratorio</span>
+                                    <span class="list-desc">Insumos al alza (+12%)</span>
+                                </div>
+                            </div>
+                            <div class="list-meta">
+                                <span class="badge-margin negative">18% Margen</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Predicción de Abastecimiento (IA Forecast) -->
+                <div class="card list-card" id="supplyForecastCard">
+                    <div class="card-header">
+                        <h3>Predicción de Abastecimiento</h3>
+                        <span class="status-badge warning">IA Forecast</span>
+                    </div>
+                    <div class="list-container">
+                        <div class="list-item">
+                            <span class="list-name">Reactivos Laboratorio</span>
+                            <span class="stock-level low">15% (Quedan 3 días)</span>
+                        </div>
+                        <div class="list-item">
+                            <span class="list-name">Insumos Radiología</span>
+                            <span class="stock-level ok">82% (Suficiente)</span>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inteligencia de Suministros (Secondary Hero) -->
+                <div class="card hero-card secondary" id="supplyIntelligenceCard">
+                    <div class="card-header">
+                        <h3>Sentinel-1: Predicción de Abastecimiento</h3>
+                        <span class="status-badge orange">IA Forecast</span>
+                    </div>
+                    <div class="hero-content">
+                        <div class="prediction-grid">
+                            <div class="prediction-item">
+                                <span class="label">Autonomía de Insumos</span>
+                                <div class="progress-bar"><div class="progress" style="width: 65%;"></div></div>
+                                <span class="value">12 Días (Basado en Agenda)</span>
+                            </div>
+                            <div class="prediction-item">
+                                <span class="label">Riesgo de Quiebre (Semana Próxima)</span>
+                                <span class="value negative">Kit Quirúrgico (3 unidades faltantes)</span>
+                            </div>
+                        </div>
+                        <div class="hero-action">
+                            <button class="btn-secondary">Revisar Pedidos Sugeridos</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Chat widget -->
+        <div class="chat-widget" id="chatWidget">
+            <div class="chat-header">
+                <div class="chat-header-info">
+                    <img src="https://ui-avatars.com/api/?name=Sentinel&background=8A64D6&color=fff&rounded=true" alt="Sentinel-1">
+                    <div>
+                        <h4>Sentinel-1 (Core)</h4>
+                        <span class="status-online"><i class="fa-solid fa-circle"></i> Online (Live Stream)</span>
+                    </div>
+                </div>
+                <button class="chat-close" id="chatClose"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="chat-body" id="chatBody">
+                <div class="chat-message bot">
+                    <p>¡Hola! Las alertas de Salud Financiera y Operaciones están actualizadas. ¿Deseas que active el protocolo de redireccionamiento de pacientes a recepción ahora mismo?</p>
+                    <span class="chat-time">12:00 PM</span>
+                </div>
+            </div>
+            <div class="chat-footer">
+                <input type="text" id="chatInput" placeholder="Escribe el comando para el agente...">
+                <button id="chatSend"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+        
+        <!-- Floating Chat Toggle Button -->
+        <button class="chat-toggle" id="chatToggle">
+            <i class="fa-solid fa-robot"></i>
+            <span class="chat-badge">1</span>
+        </button>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
