@@ -1064,6 +1064,8 @@ body {
     display: flex;
     flex-direction: column;
     gap: 30px;
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
 .onboarding-header {
@@ -1183,7 +1185,7 @@ body {
 
 .industry-cards {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
     gap: 15px;
 }
 
