@@ -18,7 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Chart 1: Donut Chart for Capacity
-    const capacityCtx = document.getElementById('capacityChart').getContext('2d');
+    const capacityCanvas = document.getElementById('capacityChart');
+    if (capacityCanvas) {
+        const capacityCtx = capacityCanvas.getContext('2d');
     
     // Gradient for Donut Chart
     const gradientSaturado = capacityCtx.createLinearGradient(0, 0, 0, 400);
@@ -61,11 +63,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+    }
 
     // Configuración del Gráfico de Facturación vs Margen (Sentinel-1)
-    const ctxFinance = document.getElementById('financeChart').getContext('2d');
+    const financeCanvas = document.getElementById('financeChart');
+    if (financeCanvas) {
+    const ctxFinance = financeCanvas.getContext('2d');
 
-    const financeChart = new Chart(ctxFinance, {
+    var financeChart = new Chart(ctxFinance, {
         type: 'bar', // Base de barras para facturación
         data: {
             labels: ['Radiología', 'Ginecología', 'Cardiología', 'Ortopedia', 'Laboratorio'],
@@ -127,6 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+    }
 
     // Chat Widget Logic
     const chatToggle = document.getElementById('chatToggle');
@@ -414,6 +420,224 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
         });
+    // ==========================================
+    // Skill Store Engine (Sentinel Modules)
+    // ==========================================
+    const defaultSkills = [
+        {
+            id: 'supply_auditor',
+            name: 'Supply Auditor',
+            icon: 'fa-solid fa-file-invoice-dollar',
+            description: 'Analiza variaciones de precios de proveedores en tiempo real cruzando facturas y costos.',
+            saving: '$5,000 USD Ahorro Proyectado',
+            price: '$20 USD',
+            is_active: false
+        },
+        {
+            id: 'growth_hacker',
+            name: 'Growth Hacker',
+            icon: 'fa-solid fa-chart-line',
+            description: 'Calcula el ROI por canal de adquisición de pacientes/clientes y sugiere reasignación de pauta.',
+            saving: '+15% Conversión Proyectada',
+            price: '$35 USD',
+            is_active: false
+        },
+        {
+            id: 'payroll_predictor',
+            name: 'Payroll Predictor',
+            icon: 'fa-solid fa-users-gear',
+            description: 'Proyecta gastos de personal y turnos según la agenda cargada para optimizar capacidad.',
+            saving: '-12% Horas Extra Proyectadas',
+            price: '$25 USD',
+            is_active: false
+        }
+    ];
+
+    let skillStore = [];
+    const savedSkills = localStorage.getItem('nrv_skills');
+    if (savedSkills) {
+        try {
+            skillStore = JSON.parse(savedSkills);
+            if (!Array.isArray(skillStore)) throw new Error('Not an array');
+        } catch(e) {
+            console.error('Error parsing skills from localStorage', e);
+            skillStore = defaultSkills;
+            localStorage.setItem('nrv_skills', JSON.stringify(skillStore));
+        }
+    } else {
+        skillStore = defaultSkills;
+        localStorage.setItem('nrv_skills', JSON.stringify(skillStore));
     }
+
+    // Expose globally to allow onclick calling
+    window.unlockSkill = function(skillId) {
+        const skill = skillStore.find(s => s.id === skillId);
+        if (skill && !skill.is_active) {
+            const confirmed = confirm(`¿Autorizar pago seguro de ${skill.price} para desbloquear ${skill.name}?`);
+            if (confirmed) {
+                skill.is_active = true;
+                localStorage.setItem('nrv_skills', JSON.stringify(skillStore));
+                alert(`¡${skill.name} desbloqueado exitosamente! El widget ahora está procesando datos.`);
+                renderSkills();
+            }
+        }
+    };
+
+    function renderSkills(filterText = '') {
+        const container = document.getElementById('skillsGridContent');
+        if (!container) return;
+        
+        container.innerHTML = `
+            <div style="grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                <!-- Action Card: Build Your Own -->
+                <div class="skill-card" style="border: 2px dashed #ffb042; background: rgba(255, 176, 66, 0.05); display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px 15px; cursor: pointer; transition: transform 0.3s; margin: 0; min-height: 200px;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 176, 66, 0.1); display: flex; justify-content: center; align-items: center; margin: 0 auto 10px auto;">
+                        <i class="fa-solid fa-hammer" style="font-size: 16px; color: #ffb042;"></i>
+                    </div>
+                    <h3 style="font-size: 15px; color: #ffb042; margin-bottom: 5px; line-height: 1.2;">Construir<br>desde cero</h3>
+                    <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px; line-height: 1.3;">Crea tu algoritmo con lienzo en blanco.</p>
+                    <button class="btn-unlock" style="background: transparent; color: #ffb042; border: 1px solid #ffb042; width: 100%; padding: 8px; font-size: 12px; margin-top: auto;" onclick="alert('Abriendo creador de Skills...')">Empezar</button>
+                </div>
+
+                <!-- Action Card: Connect Integration -->
+                <div class="skill-card" style="border: 2px dashed var(--primary-color); background: rgba(67, 97, 238, 0.02); display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px 15px; cursor: pointer; transition: transform 0.3s; margin: 0; min-height: 200px;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(67, 97, 238, 0.1); display: flex; justify-content: center; align-items: center; margin: 0 auto 10px auto;">
+                        <i class="fa-solid fa-plug" style="font-size: 16px; color: var(--primary-color);"></i>
+                    </div>
+                    <h3 style="font-size: 15px; color: var(--primary-color); margin-bottom: 5px; line-height: 1.2;">Conectar<br>App (API)</h3>
+                    <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px; line-height: 1.3;">Vincula datos de Zapier, Make o APIs.</p>
+                    <button class="btn-unlock" style="background: transparent; color: var(--primary-color); border: 1px solid var(--primary-color); width: 100%; padding: 8px; font-size: 12px; margin-top: auto;" onclick="alert('Abriendo configuración de Webhooks...')">Integrar App</button>
+                </div>
+            </div>
+        `;
+
+        const filteredSkills = skillStore.filter(skill => {
+            const searchStr = filterText.toLowerCase();
+            return skill.name.toLowerCase().includes(searchStr) || skill.description.toLowerCase().includes(searchStr);
+        });
+
+        filteredSkills.forEach(skill => {
+            const isLocked = !skill.is_active;
+            const html = `
+                <div class="skill-card ${isLocked ? 'locked' : ''}">
+                    <div class="skill-header">
+                        <i class="${skill.icon}"></i>
+                        <h4>${skill.name}</h4>
+                        ${isLocked ? '<span class="badge-premium"><i class="fa-solid fa-lock" style="font-size:10px; color:#000;"></i> Premium</span>' : '<span class="badge-premium" style="background:var(--success-color);color:white"><i class="fa-solid fa-check" style="font-size:10px; color:white;"></i> Activa</span>'}
+                    </div>
+                    <div class="skill-preview">
+                        <p>${skill.description}</p>
+                        ${isLocked ? `
+                        <div class="blurred-content">
+                            <span>${skill.saving}</span>
+                        </div>
+                        ` : `
+                        <div class="unlocked-content" style="padding:15px;background:rgba(67, 97, 238, 0.05);border-radius:8px;margin-top:15px; border: 1px solid rgba(67, 97, 238, 0.2);">
+                            <strong style="color:var(--primary-color);font-size:13px;"><i class="fa-solid fa-circle-play"></i> Reporte Activo</strong><br>
+                            <span style="font-size:12px; color:var(--text-muted);">Sentinel está operando este módulo silenciosamente.</span>
+                        </div>
+                        `}
+                    </div>
+                    ${isLocked ? `<button class="btn-unlock" onclick="window.unlockSkill('${skill.id}')">Desbloquear por ${skill.price}</button>` : ''}
+                </div>
+            `;
+            container.innerHTML += html;
+        });
+    }
+
+    // Global Navigation Handlers
+    const dashboardGrid = document.getElementById('dashboardGrid');
+    const skillsGrid = document.getElementById('skillsGrid');
+
+    window.openSkillsStore = function(e) {
+        if (e) e.preventDefault();
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('[data-nav="skills"]').forEach(el => el.classList.add('active'));
+        if (dashboardGrid) dashboardGrid.style.display = 'none';
+        if (skillsGrid) {
+            skillsGrid.style.display = 'flex';
+            skillsGrid.style.flexDirection = 'column';
+        }
+        const topSearchBar = document.getElementById('topSearchBar');
+        if (topSearchBar) topSearchBar.style.display = 'none';
+        
+        const searchInput = document.getElementById('skillSearch');
+        renderSkills(searchInput ? searchInput.value : '');
+    };
+
+    window.openDashboard = function(e) {
+        if (e) e.preventDefault();
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('[data-nav="dashboard"]').forEach(el => el.classList.add('active'));
+        if (skillsGrid) skillsGrid.style.display = 'none';
+        if (dashboardGrid) dashboardGrid.style.display = 'grid';
+        
+        const topSearchBar = document.getElementById('topSearchBar');
+        if (topSearchBar) topSearchBar.style.display = 'flex';
+    };
+
+    // Nav navigation logic for Skills Store
+    const navDashboard = document.getElementById('nav-dashboard');
+    const navSkills = document.getElementById('nav-skills');
+
+    if (navSkills) {
+        navSkills.addEventListener('click', window.openSkillsStore);
+    }
+
+        const skillSearchInput = document.getElementById('skillSearch');
+        if (skillSearchInput) {
+            skillSearchInput.addEventListener('input', (e) => {
+                renderSkills(e.target.value);
+            });
+        }
+
+        if (navDashboard) {
+            navDashboard.addEventListener('click', window.openDashboard);
+        }
+    }
+
+    // Call render once to initialize if opened
+    renderSkills();
+
+    // Sentinel Pitch Protocol (Internal Sales)
+    function runSentinelPitchProtocol() {
+        const auditor = skillStore.find(s => s.id === 'supply_auditor');
+        if (auditor && !auditor.is_active) {
+            // Simular un escaneo silencioso y lanzar una alerta de venta interna
+            setTimeout(() => {
+                const chatBody = document.getElementById('chatBody');
+                if (chatBody) {
+                    const alertMsg = document.createElement('div');
+                    alertMsg.className = 'chat-message bot warning';
+                    alertMsg.innerHTML = `
+                        <p>💡 <b>OPORTUNIDAD DETECTADA:</b> He realizado un escaneo silencioso y detecté una oportunidad de optimización en compras y variación de precios de proveedores.<br><br>
+                        <a href="#" onclick="document.getElementById('nav-skills').click(); document.getElementById('chatWidget').classList.remove('active'); return false;" style="color:var(--primary-color);font-weight:bold;text-decoration:underline;">Desbloquea la Skill de Supply Auditor</a> para ver el reporte detallado y capturar un ahorro proyectado de $5,000 USD.</p>
+                        <span class="chat-time">Sentinel Pitch Engine</span>
+                    `;
+                    chatBody.appendChild(alertMsg);
+                    chatBody.scrollTop = chatBody.scrollHeight;
+                    
+                    // Notificar con badge de campana
+                    const bellBadge = document.querySelector('.header .notification .badge');
+                    if (bellBadge) {
+                        let currentCount = parseInt(bellBadge.innerText) || 0;
+                        bellBadge.innerText = currentCount + 1;
+                        bellBadge.style.boxShadow = '0 0 10px #ffb042';
+                        bellBadge.style.display = 'flex';
+                    }
+                    
+                    // Notificar en el toggle del chat
+                    const chatToggleBadge = document.querySelector('#chatToggle .chat-badge');
+                    if (chatToggleBadge) {
+                        chatToggleBadge.style.display = 'flex';
+                        chatToggleBadge.innerText = '1';
+                    }
+                }
+            }, 6000); // 6 seconds after page load
+        }
+    }
+    
+    // Iniciar el protocolo de venta
+    runSentinelPitchProtocol();
 
 });

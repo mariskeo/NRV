@@ -8,20 +8,201 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
-    <div class="dashboard">
+    <!-- Onboarding Wizard -->
+    <div id="onboardingWizard" class="onboarding-container">
+        <div class="onboarding-glass">
+            <div class="onboarding-header">
+                <h2>Bienvenido a Sentinel-OS</h2>
+                <div class="step-indicator">
+                    <div class="step active" id="indicator-step-1">1</div>
+                    <div class="step-line"></div>
+                    <div class="step" id="indicator-step-2">2</div>
+                    <div class="step-line"></div>
+                    <div class="step" id="indicator-step-3">3</div>
+                </div>
+            </div>
+
+            <!-- Step 1: Identidad -->
+            <div class="wizard-step active" id="wizard-step-1">
+                <h3>Paso 1: Identidad Operativa</h3>
+                <p>Configura el perfil base de tu organización.</p>
+                
+                <div class="form-group">
+                    <label>Nombre de la Empresa</label>
+                    <input type="text" id="ob-company" placeholder="Ej. Clínica Vida" />
+                </div>
+                
+                <div class="form-group">
+                    <label>Industria</label>
+                    <div class="industry-cards">
+                        <div class="industry-card" data-industry="Clínica">
+                            <i class="fa-solid fa-notes-medical"></i>
+                            <span>Clínica / Salud</span>
+                        </div>
+                        <div class="industry-card" data-industry="Taller">
+                            <i class="fa-solid fa-screwdriver-wrench"></i>
+                            <span>Taller / Automotriz</span>
+                        </div>
+                        <div class="industry-card" data-industry="Servicios">
+                            <i class="fa-solid fa-briefcase"></i>
+                            <span>Servicios / Consultoría</span>
+                        </div>
+                    </div>
+                    <input type="hidden" id="ob-industry" value="" />
+                </div>
+
+                <div class="form-group">
+                    <label>Número de Empleados</label>
+                    <select id="ob-employees">
+                        <option value="">Selecciona un rango...</option>
+                        <option value="1-10">1 - 10</option>
+                        <option value="11-50">11 - 50</option>
+                        <option value="51-200">51 - 200</option>
+                        <option value="201+">Más de 200</option>
+                    </select>
+                </div>
+
+                <div class="wizard-footer">
+                    <button class="btn-primary" id="btn-next-1">Siguiente <i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Step 2: Recursos -->
+            <div class="wizard-step" id="wizard-step-2">
+                <h3>Paso 2: Recursos Core</h3>
+                <p>Define el elemento fundamental de tu operación.</p>
+                
+                <div class="form-group">
+                    <label>¿Cuál es tu activo más crítico?</label>
+                    <p class="input-hint">Ej: Salas de cirugía, Máquinas CNC, Vehículos, Consultores.</p>
+                    <input type="text" id="ob-core-asset" placeholder="Ingresa tu activo principal" />
+                </div>
+
+                <div class="wizard-footer space-between">
+                    <button class="btn-secondary" id="btn-prev-2"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
+                    <button class="btn-primary" id="btn-next-2">Siguiente <i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Step 3: Datos -->
+            <div class="wizard-step" id="wizard-step-3">
+                <h3>Paso 3: Orígenes de Datos</h3>
+                <p>Conecta Sentinel-1 con tu información maestra.</p>
+                
+                <div class="data-connection-options" id="data-options-container">
+                    <button class="btn-data" id="btn-connect-drive"><i class="fa-brands fa-google-drive"></i> Conectar Drive</button>
+                    <button class="btn-data" id="btn-upload-file"><i class="fa-solid fa-file-arrow-up"></i> Subir Archivo</button>
+                    <button class="btn-data outline" id="btn-download-tpl"><i class="fa-solid fa-download"></i> Descargar Plantilla Base</button>
+                </div>
+
+                <!-- Column Mapping Validation (Hidden initially) -->
+                <div class="column-mapping-container" id="column-mapping" style="display: none;">
+                    <div class="mapping-header">
+                        <i class="fa-solid fa-table-columns text-primary"></i>
+                        <h4>Validación de Estructura</h4>
+                        <p>Archivo detectado. Por favor mapea las columnas críticas para Sentinel-1:</p>
+                    </div>
+                    
+                    <div class="mapping-grid">
+                        <div class="mapping-item">
+                            <label>Precio de Venta</label>
+                            <select id="map-price">
+                                <option value="">Seleccionar columna...</option>
+                                <option value="col1">Valor Facturado</option>
+                                <option value="col2">Costo Insumos</option>
+                                <option value="col3">Recurso Id</option>
+                                <option value="col4">Fecha</option>
+                            </select>
+                        </div>
+                        <div class="mapping-item">
+                            <label>Costo de Insumo</label>
+                            <select id="map-cost">
+                                <option value="">Seleccionar columna...</option>
+                                <option value="col1">Valor Facturado</option>
+                                <option value="col2">Costo Insumos</option>
+                                <option value="col3">Recurso Id</option>
+                                <option value="col4">Fecha</option>
+                            </select>
+                        </div>
+                        <div class="mapping-item">
+                            <label>Recurso Asignado <span id="asset-label-display"></span></label>
+                            <select id="map-resource">
+                                <option value="">Seleccionar columna...</option>
+                                <option value="col1">Valor Facturado</option>
+                                <option value="col2">Costo Insumos</option>
+                                <option value="col3">Recurso Id</option>
+                                <option value="col4">Fecha</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="wizard-footer space-between">
+                    <button class="btn-secondary" id="btn-prev-3"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
+                    <button class="btn-primary success" id="btn-finish" style="display: none;"><i class="fa-solid fa-rocket"></i> Iniciar Sentinel-OS</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- First Landing (Aha! Moment) -->
+    <div id="first-landing" class="landing-container" style="display: none; opacity: 0; transition: opacity 0.5s ease;">
+        <div class="landing-header">
+            <h2 id="landing-welcome">Bienvenido | Empresa: [Industria]</h2>
+            <p>El escaneo inicial de tus datos se ha completado. Aquí está tu <strong style="color: var(--primary-color);">Estado del Negocio T-0</strong>.</p>
+        </div>
+
+        <div class="landing-grid">
+            <!-- Card 1: Flash Insight Financiero -->
+            <div class="landing-card highlight">
+                <div class="landing-icon text-primary"><i class="fa-solid fa-money-bill-trend-up"></i></div>
+                <h3>Resumen de Liquidez</h3>
+                <p>Tu margen promedio es de <strong>24%</strong>. He detectado que un servicio clave está por debajo de tu meta del 22%.</p>
+            </div>
+
+            <!-- Card 2: Alerta de Capacidad -->
+            <div class="landing-card danger">
+                <div class="landing-icon text-danger"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <h3>Alerta de Fuga</h3>
+                <p>Tu recurso <strong id="landing-asset-name" class="text-danger">[Activo]</strong> tiene una subutilización del <strong>30%</strong>. Estás perdiendo potenciales ingresos.</p>
+            </div>
+
+            <!-- Card 3: Estado de Insumos -->
+            <div class="landing-card ok">
+                <div class="landing-icon text-success"><i class="fa-solid fa-box-open"></i></div>
+                <h3>Estado de Insumos</h3>
+                <p>Tienes stock suficiente para los próximos <strong>7 días</strong> basado en tu agenda proyectada.</p>
+            </div>
+
+            <!-- Card 4: Quick Win -->
+            <div class="landing-card action">
+                <div class="landing-icon text-orange"><i class="fa-solid fa-star"></i></div>
+                <h3>Quick Win</h3>
+                <p>Sentinel sugiere: <strong>Optimización de agenda</strong> prioritaria para mañana a las 08:00 AM.</p>
+            </div>
+        </div>
+
+        <div class="landing-footer">
+            <button class="btn-primary large pulse" id="btn-goto-dashboard">Ir al Centro de Mando Completo <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+    </div>
+
+    <div class="dashboard" id="mainDashboard" style="display: none; opacity: 0; transition: opacity 0.5s ease;">
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="logo">
                 <i class="fa-solid fa-heart-pulse logo-icon"></i>
             </div>
             <nav class="nav-menu">
-                <a href="#" class="nav-item active"><i class="fa-solid fa-chart-pie"></i></a>
+                <a href="#" class="nav-item active" id="nav-dashboard" data-nav="dashboard"><i class="fa-solid fa-chart-pie"></i></a>
                 <a href="#" class="nav-item"><i class="fa-solid fa-user"></i></a>
                 <a href="#" class="nav-item"><i class="fa-solid fa-envelope"></i></a>
                 <a href="#" class="nav-item"><i class="fa-solid fa-calendar-alt"></i></a>
                 <a href="#" class="nav-item"><i class="fa-solid fa-file-alt"></i></a>
+                <a href="#" class="nav-item" id="nav-skills" data-nav="skills" title="Centro de Capacidades"><i class="fa-solid fa-puzzle-piece"></i></a>
             </nav>
             <div class="logout">
                 <a href="#" class="nav-item"><i class="fa-solid fa-sign-out-alt"></i></a>
@@ -31,73 +212,29 @@
         <!-- Main Content -->
         <main class="main-content">
             <!-- Header -->
-            <header class="header">
-                <div class="search-bar">
-                    <i class="fa-solid fa-search"></i>
-                    <input type="text" placeholder="Search Sentinel Insights...">
+            <header class="header" style="flex-direction: row; align-items: center; gap: 15px; flex-wrap: wrap;">
+                <div class="brand-logo" style="display: flex; align-items: center; gap: 10px; font-size: 24px; font-weight: 800; color: var(--primary-color); letter-spacing: -1px; width: auto;">
+                    <i class="fa-solid fa-bolt"></i> NRV
                 </div>
-                <div class="user-profile">
-                    <div class="notification">
-                        <i class="fa-regular fa-bell"></i>
-                        <span class="badge">2</span>
-                    </div>
-                    <div class="profile-info">
-                        <img src="https://i.pravatar.cc/150?img=32" alt="Annette" class="avatar">
-                        <span class="name">Gerencia<i class="fa-solid fa-chevron-down"></i></span>
-                    </div>
+                <div class="search-bar" id="topSearchBar" style="flex: 1; max-width: 400px; margin: 0;">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" placeholder="Buscar Insights...">
                 </div>
             </header>
 
             <!-- Dashboard Grid -->
-            <div class="grid-container">
+            <div class="grid-container" id="dashboardGrid">
 
-                <!-- ALERTA DE MARGEN (REGLA DE ORO) - TOP COLAPSADA -->
-                <div class="card alert-card-margin" id="marginAlert" style="border-left: 5px solid #ff4757; margin-bottom: 5px; padding-bottom: 0;">
-                    <div class="card-header" id="marginAlertHeader" style="cursor: pointer; padding-bottom: 20px;">
-                        <h3 style="color: #ff4757; margin: 0; display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                            <span><i class="fa-solid fa-triangle-exclamation"></i> Sentinel-1: Alerta de Margen Crítico</span>
-                            <i class="fa-solid fa-chevron-down toggle-alert-icon" style="transition: transform 0.3s; color: #ff4757;"></i>
-                        </h3>
+                <!-- Locked Widget: Build Your Own (Moved to top) -->
+                <div class="card" onclick="window.openSkillsStore(event);" style="grid-column: span 4; border: 1px dashed var(--primary-color); background: rgba(67, 97, 238, 0.02); display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 40px; cursor: pointer; margin-bottom: 5px;">
+                    <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(67, 97, 238, 0.1); display: flex; justify-content: center; align-items: center; margin: 0 auto 15px auto;">
+                        <i class="fa-solid fa-puzzle-piece" style="font-size: 20px; color: var(--primary-color);"></i>
                     </div>
-                    <div id="marginAlertBody" style="display: none; padding-top: 15px; border-top: 1px solid rgba(255, 71, 87, 0.2); padding-bottom: 20px;">
-                        <div class="alert-content">
-                            <p>El servicio de <strong>Laboratorio (Perfil Lipídico)</strong> ha caído al <strong>18.7%</strong> de margen.</p>
-                            <small>Causa: Incremento del 15% en el costo del reactivo 'X' reportado en el Drive hace 1 hora.</small>
-                        </div>
-                        <div class="alert-actions">
-                            <button class="btn-outline-danger">Ver Análisis de Proveedores</button>
-                        </div>
-                    </div>
+                    <h3 style="font-size: 16px; color: var(--primary-color); margin-bottom: 5px;">Skill Store: Expande tu Dashboard</h3>
+                    <p style="font-size: 13px; color: var(--text-muted);">Compra nuevos módulos, construye tus propios widgets o conecta tus datos vía API/Zapier.</p>
                 </div>
 
-                <!-- Experiment Action Card (Hero) -->
-                <div class="card hero-card">
-                    <div class="card-header">
-                        <h3>Sentinel-1: Alerta Táctica (Mañana 08:00 AM)</h3>
-                        <span class="status-badge critical">Prioridad Alta</span>
-                    </div>
-                    <div class="hero-content">
-                        <div class="hero-text">
-                            <h4>Protocolo de Enrutamiento Rápido</h4>
-                            <p>El 30.4% de los recursos clínicos están saturados mientras que consultorios clave (101, 102) tienen 1.0 de disponibilidad. Redistribuir el tráfico de Radiología y Ginecología a estos consultorios reducirá drásticamente la tasa de No-Shows (actualmente 20%).</p>
-                            <div class="roi-projection">
-                                <div class="roi-item">
-                                    <span class="roi-label">Recuperación Diaria Proyectada</span>
-                                    <span class="roi-value positive">+$271,000 COP</span>
-                                </div>
-                                <div class="roi-item">
-                                    <span class="roi-label">Liquidez Liberada ("En Proceso")</span>
-                                    <span class="roi-value positive">+$967,500 COP</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="hero-action">
-                            <button class="btn-primary">Aprobar Instrucción a Recepción</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 4 KPI Cards -->
+                <!-- 6 KPI Cards -->
                 <div class="kpi-grid">
                     <div class="kpi-card purple">
                         <div class="kpi-icon"><i class="fa-solid fa-money-bill-wave"></i></div>
@@ -137,154 +274,39 @@
                     </div>
                 </div>
 
-                <!-- Capacity Donut Chart -->
-                <div class="card chart-card-small">
-                    <div class="card-header">
-                        <h3>Disponibilidad de Capacidad</h3>
-                        <div class="dropdown">Diario <i class="fa-solid fa-chevron-down"></i></div>
-                    </div>
-                    <div class="chart-container-donut">
-                        <canvas id="capacityChart"></canvas>
-                        <div class="donut-inner">
-                            <span class="donut-title">Saturado</span>
-                            <span class="donut-value">30%</span>
-                        </div>
-                    </div>
-                    <div class="chart-legend">
-                        <div class="legend-item"><span class="dot orange"></span>Saturado (0%)</div>
-                        <div class="legend-item"><span class="dot blue"></span>Subutilizado (100%)</div>
-                    </div>
+                <!-- Locked Widget: Capacity & Enrutamiento -->
+                <div class="card" style="grid-column: span 2; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 40px; border: 1px dashed rgba(255,255,255,0.1); background: rgba(0,0,0,0.2);">
+                    <i class="fa-solid fa-lock" style="font-size: 32px; color: var(--text-muted); margin-bottom: 15px;"></i>
+                    <h3 style="font-size: 18px; margin-bottom: 10px;">Análisis de Capacidad y Fugas</h3>
+                    <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">Desbloquea la visión detallada de ocupación, No-Shows y alertas tácticas.</p>
+                    <button class="btn-unlock" onclick="document.getElementById('nav-skills').click();">Ver en Skill Store</button>
                 </div>
 
-                <!-- Financial Chart -->
-                <div class="card chart-card-large">
-                    <div class="card-header">
-                        <h3>Facturación por Especialidad (Top 5)</h3>
-                        <div class="dropdown">Mensual <i class="fa-solid fa-chevron-down"></i></div>
-                    </div>
-                    <div class="chart-container-bar">
-                        <canvas id="financeChart"></canvas>
-                    </div>
+                <!-- Locked Widget: Supply Forecast -->
+                <div class="card" id="supplyForecastCard" style="grid-column: span 2; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 40px; border: 1px dashed rgba(255,255,255,0.1); background: rgba(0,0,0,0.2);">
+                    <i class="fa-solid fa-lock" style="font-size: 32px; color: var(--text-muted); margin-bottom: 15px;"></i>
+                    <h3 style="font-size: 18px; margin-bottom: 10px;">Predictor de Abastecimiento IA</h3>
+                    <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">Evita roturas de stock. La IA pronostica tus necesidades logísticas basadas en la agenda.</p>
+                    <button class="btn-unlock" onclick="window.openSkillsStore(event);">Ver en Skill Store</button>
                 </div>
-
-                <!-- No-Show Impact -->
-                <div class="card list-card">
-                    <div class="card-header">
-                        <h3>Impacto Directo de No-Shows</h3>
-                        <div class="dropdown">Especialistas <i class="fa-solid fa-chevron-down"></i></div>
-                    </div>
-                    <div class="list-container">
-                        <div class="list-item">
-                            <div class="list-info">
-                                <div class="avatar-sm purple-bg">SB</div>
-                                <div>
-                                    <span class="list-name">Dra. Sofía Blanco</span>
-                                    <span class="list-desc">Ginecología | 3 No-Shows</span>
-                                </div>
-                            </div>
-                            <div class="list-amount negative">-$275,000</div>
-                        </div>
-                        <div class="list-item">
-                            <div class="list-info">
-                                <div class="avatar-sm yellow-bg">RR</div>
-                                <div>
-                                    <span class="list-name">Dr. Roberto Ruiz</span>
-                                    <span class="list-desc">Cardiología | 2 No-Shows</span>
-                                </div>
-                            </div>
-                            <div class="list-amount negative">-$350,000</div>
-                        </div>
-                        <div class="list-item">
-                            <div class="list-info">
-                                <div class="avatar-sm green-bg">HS</div>
-                                <div>
-                                    <span class="list-name">Dr. Hugo Sánchez</span>
-                                    <span class="list-desc">Ortopedia | 1 No-Show</span>
-                                </div>
-                            </div>
-                            <div class="list-amount negative">-$95,000</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Monitor de Salud por Especialidad -->
-                <div class="card list-card">
-                    <div class="card-header">
-                        <h3>Salud por Especialidad (Monitor)</h3>
-                        <div class="dropdown">Margen <i class="fa-solid fa-chevron-down"></i></div>
-                    </div>
-                    <div class="list-container">
-                        <div class="list-item">
-                            <div class="list-info">
-                                <div class="status-dot green"></div>
-                                <div>
-                                    <span class="list-name">Radiología</span>
-                                    <span class="list-desc">Eficiencia: 94%</span>
-                                </div>
-                            </div>
-                            <div class="list-meta">
-                                <span class="badge-margin positive">38% Margen</span>
-                            </div>
-                        </div>
-                        <div class="list-item critical-row">
-                            <div class="list-info">
-                                <div class="status-dot red"></div>
-                                <div>
-                                    <span class="list-name">Laboratorio</span>
-                                    <span class="list-desc">Insumos al alza (+12%)</span>
-                                </div>
-                            </div>
-                            <div class="list-meta">
-                                <span class="badge-margin negative">18% Margen</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Predicción de Abastecimiento (IA Forecast) -->
-                <div class="card list-card" id="supplyForecastCard">
-                    <div class="card-header">
-                        <h3>Predicción de Abastecimiento</h3>
-                        <span class="status-badge warning">IA Forecast</span>
-                    </div>
-                    <div class="list-container">
-                        <div class="list-item">
-                            <span class="list-name">Reactivos Laboratorio</span>
-                            <span class="stock-level low">15% (Quedan 3 días)</span>
-                        </div>
-                        <div class="list-item">
-                            <span class="list-name">Insumos Radiología</span>
-                            <span class="stock-level ok">82% (Suficiente)</span>
-                        </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Inteligencia de Suministros (Secondary Hero) -->
-                <div class="card hero-card secondary" id="supplyIntelligenceCard">
-                    <div class="card-header">
-                        <h3>Sentinel-1: Predicción de Abastecimiento</h3>
-                        <span class="status-badge orange">IA Forecast</span>
-                    </div>
-                    <div class="hero-content">
-                        <div class="prediction-grid">
-                            <div class="prediction-item">
-                                <span class="label">Autonomía de Insumos</span>
-                                <div class="progress-bar"><div class="progress" style="width: 65%;"></div></div>
-                                <span class="value">12 Días (Basado en Agenda)</span>
-                            </div>
-                            <div class="prediction-item">
-                                <span class="label">Riesgo de Quiebre (Semana Próxima)</span>
-                                <span class="value negative">Kit Quirúrgico (3 unidades faltantes)</span>
-                            </div>
-                        </div>
-                        <div class="hero-action">
-                            <button class="btn-secondary">Revisar Pedidos Sugeridos</button>
-                        </div>
-                    </div>
-                </div>
-
             </div>
+
+            <!-- Skills Store Container -->
+            <div class="skills-container" id="skillsGrid" style="display: none; flex: 1;">
+                <div class="skills-header" style="margin-bottom: 30px; background: linear-gradient(135deg, rgba(67,97,238,0.05) 0%, rgba(247,37,133,0.05) 100%); padding: 40px 20px; border-radius: 20px; text-align: center; border: 1px solid rgba(67,97,238,0.1);">
+                    <div style="font-size: 48px; color: #ffb042; margin-bottom: 15px; text-shadow: 0 0 20px rgba(255, 176, 66, 0.4);"><i class="fa-solid fa-bolt"></i></div>
+                    <h2 style="font-size: 28px; color: var(--text-dark); margin-bottom: 10px; font-weight: 800;">Potencia tu <span style="color: var(--primary-color);">NRV</span></h2>
+                    <p style="color: var(--text-muted); margin-bottom: 25px; max-width: 500px; margin-left: auto; margin-right: auto;">Expande las capacidades de tu IA Sentinel. Descubre nuevos módulos predictivos, conecta tus herramientas o construye tus propios algoritmos.</p>
+                    <div class="search-bar" style="max-width: 500px; margin: 0 auto; background: white; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-radius: 30px; padding: 5px 25px;">
+                        <i class="fa-solid fa-search" style="color: var(--primary-color);"></i>
+                        <input type="text" id="skillSearch" placeholder="Busca skills, integraciones o flujos..." style="font-size: 15px; padding: 10px 0;">
+                    </div>
+                </div>
+                <div class="skills-grid" id="skillsGridContent" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+                    <!-- Los widgets se renderizarán vía app.js -->
+                </div>
+            </div>
+
         </main>
 
         <!-- Chat widget -->
@@ -316,8 +338,16 @@
             <i class="fa-solid fa-robot"></i>
             <span class="chat-badge">1</span>
         </button>
+        <!-- Bottom Navigation Bar (Mobile Only) -->
+        <nav class="bottom-nav">
+            <a href="#" class="nav-item active" data-nav="dashboard" onclick="window.openDashboard(event);"><i class="fa-solid fa-chart-pie"></i><span>Dashboard</span></a>
+            <a href="#" class="nav-item" data-nav="skills" onclick="window.openSkillsStore(event);"><i class="fa-solid fa-puzzle-piece"></i><span>Skills</span></a>
+            <a href="#" class="nav-item"><i class="fa-solid fa-bell"></i><span>Alertas</span></a>
+            <a href="#" class="nav-item"><i class="fa-solid fa-user"></i><span>Perfil</span></a>
+        </nav>
     </div>
 
+    <script src="onboarding.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
