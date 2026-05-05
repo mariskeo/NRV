@@ -202,10 +202,17 @@ function finishOnboarding() {
         wiz.style.display = 'none';
         
         // Show main dashboard
-        const main = document.getElementById('dashboard');
+        const main = document.getElementById('mainDashboard');
         main.style.display = 'flex';
+        void main.offsetWidth; // Trigger reflow
+        main.style.opacity = '1';
         
         // Disparar evento para app.js
         window.dispatchEvent(new Event('onboardingCompleted'));
+        
+        // Trigger chart rendering in dashboard
+        if (typeof window.dispatchEvent === 'function') {
+            window.dispatchEvent(new Event('resize'));
+        }
     }, 500);
 }
