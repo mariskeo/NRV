@@ -13,136 +13,151 @@
 <body>
     <!-- Onboarding Wizard -->
     <div id="onboardingWizard" class="onboarding-container">
-        <div class="onboarding-glass">
-            <div class="onboarding-header">
-                <h2>Bienvenido a Sentinel-OS</h2>
-                <div class="step-indicator">
-                    <div class="step active" id="indicator-step-1">1</div>
-                    <div class="step-line"></div>
-                    <div class="step" id="indicator-step-2">2</div>
-                    <div class="step-line"></div>
-                    <div class="step" id="indicator-step-3">3</div>
+        <div class="onboarding-glass">            <!-- Onboarding Progress Bar (Hidden in Step 1 and 5) -->
+            <div class="onboarding-header" id="ob-header" style="display: none; padding-top: 10px; margin-bottom: 20px;">
+                <div style="background: #e2e8f0; height: 8px; border-radius: 4px; width: 100%; overflow: hidden;">
+                    <div id="progress-bar" style="background: var(--primary-color); height: 100%; width: 25%; transition: width 0.3s ease;"></div>
                 </div>
             </div>
 
-            <!-- Step 1: Identidad -->
-            <div class="wizard-step active" id="wizard-step-1">
-                <h3>Paso 1: Identidad Operativa</h3>
-                <p>Configura el perfil base de tu organización.</p>
-                
-                <div class="form-group">
-                    <label>Nombre de la Empresa</label>
-                    <input type="text" id="ob-company" placeholder="Ej. Clínica Vida" />
+            <!-- Paso 1: Bienvenida -->
+            <div class="wizard-step active" id="wizard-step-1" style="text-align: center; padding: 20px 0;">
+                <div style="font-size: 60px; margin-bottom: 20px; color: var(--primary-color);">
+                    <i class="fa-solid fa-chart-pie"></i>
                 </div>
+                <h2 style="font-size: 32px; color: var(--primary-color); margin-bottom: 10px; font-weight: 800;">Bienvenido a NRV</h2>
+                <p style="font-size: 16px; color: var(--text-muted); margin-bottom: 40px;">Transforma tus datos en decisiones que impulsen tu negocio.</p>
                 
-                <div class="form-group">
-                    <label>Industria</label>
-                    <div class="industry-cards">
-                        <div class="industry-card" data-industry="Clínica">
-                            <i class="fa-solid fa-notes-medical"></i>
-                            <span>Clínica / Salud</span>
-                        </div>
-                        <div class="industry-card" data-industry="Taller">
-                            <i class="fa-solid fa-screwdriver-wrench"></i>
-                            <span>Taller / Automotriz</span>
-                        </div>
-                        <div class="industry-card" data-industry="Servicios">
-                            <i class="fa-solid fa-briefcase"></i>
-                            <span>Servicios / Consultoría</span>
-                        </div>
-                    </div>
-                    <input type="hidden" id="ob-industry" value="" />
+                <div style="text-align: left; max-width: 350px; margin: 0 auto 40px auto; display: flex; flex-direction: column; gap: 15px;">
+                    <div style="display: flex; gap: 10px; align-items: center;"><i class="fa-solid fa-bolt text-primary"></i> <span>Diagnóstico inmediato de tu estado</span></div>
+                    <div style="display: flex; gap: 10px; align-items: center;"><i class="fa-solid fa-robot text-primary"></i> <span>Explora datos con IA conversacional</span></div>
+                    <div style="display: flex; gap: 10px; align-items: center;"><i class="fa-solid fa-bell text-primary"></i> <span>Alertas de oportunidades críticas</span></div>
+                    <div style="display: flex; gap: 10px; align-items: center;"><i class="fa-solid fa-puzzle-piece text-primary"></i> <span>Crece con Skills modulares</span></div>
                 </div>
 
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">El proceso toma 3 minutos. Vamos allá.</p>
+                <button class="btn-primary large" style="width: 100%; border-radius: 12px;" onclick="goToStep(2)">Comenzar escaneo <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+
+            <!-- Paso 2: Identidad Operativa -->
+            <div class="wizard-step" id="wizard-step-2">
+                <h3 style="font-size: 24px; color: var(--primary-color); margin-bottom: 5px;">Identidad Operativa</h3>
+                <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 30px;">Esto nos ayuda a personalizar tu NRV desde el día 1.</p>
+                
                 <div class="form-group">
-                    <label>Número de Empleados</label>
-                    <select id="ob-employees">
-                        <option value="">Selecciona un rango...</option>
-                        <option value="1-10">1 - 10</option>
-                        <option value="11-50">11 - 50</option>
-                        <option value="51-200">51 - 200</option>
-                        <option value="201+">Más de 200</option>
+                    <label>Nombre de la empresa *</label>
+                    <input type="text" id="ob-company" placeholder="Ej: Clínica Vida" />
+                </div>
+                
+                <div class="form-group">
+                    <label>Industria *</label>
+                    <select id="ob-industry" onchange="updateAssetPlaceholder()">
+                        <option value="">Selecciona tu industria...</option>
+                        <option value="Salud">Salud / Clínica</option>
+                        <option value="Automotriz">Automotriz / Taller</option>
+                        <option value="Retail">Retail / Comercio</option>
+                        <option value="SaaS">Tecnología / SaaS</option>
+                        <option value="Consultoría">Consultoría / Servicios</option>
+                        <option value="Manufactura">Manufactura</option>
+                        <option value="Otro">Otro</option>
                     </select>
                 </div>
 
-                <div class="wizard-footer">
-                    <button class="btn-primary" id="btn-next-1">Siguiente <i class="fa-solid fa-arrow-right"></i></button>
+                <div class="form-group">
+                    <label>Tamaño de tu equipo *</label>
+                    <div class="button-grid" id="ob-team">
+                        <button class="grid-btn" data-value="1-10">1-10</button>
+                        <button class="grid-btn" data-value="11-50">11-50</button>
+                        <button class="grid-btn" data-value="51-200">51-200</button>
+                        <button class="grid-btn" data-value="200+">200+</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>¿Cuál es tu mayor desafío ahora?</label>
+                    <div class="button-stack" id="ob-challenge">
+                        <button class="stack-btn" data-value="Ingresos">Aumentar ingresos</button>
+                        <button class="stack-btn" data-value="Costos">Optimizar costos</button>
+                        <button class="stack-btn" data-value="Entendimiento">Entender mi negocio mejor</button>
+                        <button class="stack-btn" data-value="Operaciones">Mejorar operaciones</button>
+                        <button class="stack-btn" data-value="IA">Explorar con IA</button>
+                    </div>
+                </div>
+
+                <div class="wizard-footer space-between">
+                    <button class="btn-secondary" onclick="goToStep(1)"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
+                    <button class="btn-primary" onclick="goToStep(3)" id="btn-next-2">Siguiente <i class="fa-solid fa-arrow-right"></i></button>
                 </div>
             </div>
 
-            <!-- Step 2: Recursos -->
-            <div class="wizard-step" id="wizard-step-2">
-                <h3>Paso 2: Recursos Core</h3>
-                <p>Define el elemento fundamental de tu operación.</p>
+            <!-- Paso 3: Activo Crítico -->
+            <div class="wizard-step" id="wizard-step-3">
+                <h3 style="font-size: 24px; color: var(--primary-color); margin-bottom: 5px;">Recurso Core</h3>
+                <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 30px;">Identifica el motor de tu operación.</p>
                 
                 <div class="form-group">
-                    <label>¿Cuál es tu activo más crítico?</label>
-                    <p class="input-hint">Ej: Salas de cirugía, Máquinas CNC, Vehículos, Consultores.</p>
-                    <input type="text" id="ob-core-asset" placeholder="Ingresa tu activo principal" />
+                    <label>¿Cuál es tu activo más crítico? *</label>
+                    <textarea id="ob-asset" placeholder="Ej: Máquinas, Personal, Inventario..." style="width: 100%; min-height: 80px; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; font-family: 'Inter'; margin-bottom: 10px; resize: vertical;"></textarea>
+                    <p class="input-hint" style="font-size: 13px; color: var(--primary-color);">Este activo será el corazón de tu NRV. Aquí se enfocarán tus métricas principales.</p>
                 </div>
 
                 <div class="wizard-footer space-between">
-                    <button class="btn-secondary" id="btn-prev-2"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
-                    <button class="btn-primary" id="btn-next-2">Siguiente <i class="fa-solid fa-arrow-right"></i></button>
+                    <button class="btn-secondary" onclick="goToStep(2)"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
+                    <button class="btn-primary" onclick="goToStep(4)" id="btn-next-3">Siguiente <i class="fa-solid fa-arrow-right"></i></button>
                 </div>
             </div>
 
-            <!-- Step 3: Datos -->
-            <div class="wizard-step" id="wizard-step-3">
-                <h3>Paso 3: Orígenes de Datos</h3>
-                <p>Conecta Sentinel-1 con tu información maestra.</p>
+            <!-- Paso 4: Carga de Datos -->
+            <div class="wizard-step" id="wizard-step-4" style="text-align: center;">
+                <h3 style="font-size: 24px; color: var(--primary-color); margin-bottom: 5px;">Conecta tus datos</h3>
+                <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 30px;">Sube un archivo y NRV aprenderá de tu operación.</p>
                 
-                <div class="data-connection-options" id="data-options-container">
-                    <button class="btn-data" id="btn-connect-drive"><i class="fa-brands fa-google-drive"></i> Conectar Drive</button>
-                    <button class="btn-data" id="btn-upload-file"><i class="fa-solid fa-file-arrow-up"></i> Subir Archivo</button>
-                    <button class="btn-data outline" id="btn-download-tpl"><i class="fa-solid fa-download"></i> Descargar Plantilla Base</button>
+                <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
+                    <i class="fa-regular fa-folder-open" style="font-size: 40px; color: var(--primary-color); margin-bottom: 15px;"></i>
+                    <h4 style="margin-bottom: 5px;">Sube tu archivo de datos</h4>
+                    <p style="font-size: 13px; color: var(--text-muted);">Arrastra o haz clic para seleccionar<br>(CSV, Excel, JSON hasta 50MB)</p>
+                    <input type="file" id="file-input" style="display: none;" accept=".csv, .xlsx, .xls, .json">
                 </div>
 
-                <!-- Column Mapping Validation (Hidden initially) -->
-                <div class="column-mapping-container" id="column-mapping" style="display: none;">
-                    <div class="mapping-header">
-                        <i class="fa-solid fa-table-columns text-primary"></i>
-                        <h4>Validación de Estructura</h4>
-                        <p>Archivo detectado. Por favor mapea las columnas críticas para Sentinel-1:</p>
-                    </div>
-                    
-                    <div class="mapping-grid">
-                        <div class="mapping-item">
-                            <label>Precio de Venta</label>
-                            <select id="map-price">
-                                <option value="">Seleccionar columna...</option>
-                                <option value="col1">Valor Facturado</option>
-                                <option value="col2">Costo Insumos</option>
-                                <option value="col3">Recurso Id</option>
-                                <option value="col4">Fecha</option>
-                            </select>
-                        </div>
-                        <div class="mapping-item">
-                            <label>Costo de Insumo</label>
-                            <select id="map-cost">
-                                <option value="">Seleccionar columna...</option>
-                                <option value="col1">Valor Facturado</option>
-                                <option value="col2">Costo Insumos</option>
-                                <option value="col3">Recurso Id</option>
-                                <option value="col4">Fecha</option>
-                            </select>
-                        </div>
-                        <div class="mapping-item">
-                            <label>Recurso Asignado <span id="asset-label-display"></span></label>
-                            <select id="map-resource">
-                                <option value="">Seleccionar columna...</option>
-                                <option value="col1">Valor Facturado</option>
-                                <option value="col2">Costo Insumos</option>
-                                <option value="col3">Recurso Id</option>
-                                <option value="col4">Fecha</option>
-                            </select>
-                        </div>
-                    </div>
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px;">
+                    <button class="btn-secondary outline" style="width: 100%;" onclick="alert('Descargando plantilla.csv...')"><i class="fa-solid fa-download"></i> Descargar plantilla base</button>
+                    <button class="btn-secondary outline" style="width: 100%;"><i class="fa-brands fa-google-drive"></i> Conectar Google Drive</button>
                 </div>
 
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px;">Podrás subir datos desde el dashboard en cualquier momento.</p>
+                
                 <div class="wizard-footer space-between">
-                    <button class="btn-secondary" id="btn-prev-3"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
-                    <button class="btn-primary success" id="btn-finish" style="display: none;"><i class="fa-solid fa-rocket"></i> Iniciar Sentinel-OS</button>
+                    <button class="btn-secondary" onclick="goToStep(3)"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
+                    <button class="btn-secondary" onclick="skipDataUpload()" style="background: transparent; color: var(--text-muted); border: none;">Haré esto después <i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Paso 5: Confirmación -->
+            <div class="wizard-step" id="wizard-step-5" style="text-align: center;">
+                <h3 style="font-size: 28px; color: var(--primary-color); margin-bottom: 5px;">¡Listo!</h3>
+                <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 30px;">Tu NRV está configurado y listo para trabajar.</p>
+                
+                <div style="background: rgba(67, 97, 238, 0.05); border-radius: 16px; padding: 20px; text-align: left; margin-bottom: 20px; border: 1px solid rgba(67, 97, 238, 0.1);">
+                    <h4 style="margin-bottom: 15px; color: var(--primary-color); font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Resumen</h4>
+                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 14px;">
+                        <li><i class="fa-solid fa-check text-success"></i> <span id="summary-name">Empresa</span></li>
+                        <li><i class="fa-solid fa-check text-success"></i> <span id="summary-industry">Industria</span></li>
+                        <li><i class="fa-solid fa-check text-success"></i> <span id="summary-team">Equipo</span></li>
+                        <li><i class="fa-solid fa-check text-success"></i> <span id="summary-asset">Activo Crítico</span></li>
+                        <li id="summary-data-status"><i class="fa-solid fa-clock text-warning"></i> Datos Pendientes</li>
+                    </ul>
+                </div>
+
+                <!-- Diagnóstico Card (Dynamic via JS) -->
+                <div id="diagnosis-card" style="background: white; border-radius: 16px; padding: 25px; text-align: left; margin-bottom: 30px; box-shadow: var(--shadow-soft); border: 1px solid #e2e8f0;">
+                    <!-- Rellenado por JS -->
+                </div>
+
+                <button class="btn-primary large" style="width: 100%; border-radius: 12px; margin-bottom: 15px;" onclick="finishOnboarding()">Ver mi NRV <i class="fa-solid fa-arrow-right"></i></button>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <a href="#" style="font-size: 13px; color: var(--text-muted); text-decoration: none;">Invitar equipo</a>
+                    <span style="color: var(--text-muted);">|</span>
+                    <a href="#" style="font-size: 13px; color: var(--text-muted); text-decoration: none;">Ver guía</a>
                 </div>
             </div>
         </div>
@@ -211,6 +226,20 @@
 
         <!-- Main Content -->
         <main class="main-content">
+            <!-- Data Upload Fallback Component (Hidden by default) -->
+            <div id="data-upload-fallback" style="display: none; background: #fff8e6; border: 1px solid #ffcc00; border-radius: 12px; padding: 20px; margin-bottom: 25px; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <div style="font-size: 30px; color: #ff9900;"><i class="fa-regular fa-folder-open"></i></div>
+                    <div>
+                        <h4 style="margin: 0 0 5px 0; color: #b36b00; font-size: 16px;">Tu archivo de datos aún no está aquí</h4>
+                        <p style="margin: 0; color: #d98200; font-size: 13px;">Sube ahora para activar el diagnóstico IA y personalizar tu dashboard.</p>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn-primary" style="background: #ff9900; border: none; padding: 10px 15px;" onclick="alert('Abriendo modal de carga...')"><i class="fa-solid fa-file-arrow-up"></i> Subir archivo</button>
+                    <button class="btn-secondary outline" style="border-color: #ffcc00; color: #b36b00; padding: 10px 15px;" onclick="alert('Descargando plantilla...')"><i class="fa-solid fa-download"></i> Plantilla</button>
+                </div>
+            </div>
             <!-- Header -->
             <header class="header" style="flex-direction: row; align-items: center; gap: 15px; flex-wrap: wrap;">
                 <div class="brand-logo" style="display: flex; align-items: center; gap: 10px; font-size: 24px; font-weight: 800; color: var(--primary-color); letter-spacing: -1px; width: auto;">

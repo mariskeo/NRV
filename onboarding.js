@@ -1,229 +1,211 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // UI Elements
-    const wizardContainer = document.getElementById('onboardingWizard');
-    const mainDashboard = document.getElementById('mainDashboard');
-    
-    const steps = [
-        document.getElementById('wizard-step-1'),
-        document.getElementById('wizard-step-2'),
-        document.getElementById('wizard-step-3')
-    ];
-    
-    const indicators = [
-        document.getElementById('indicator-step-1'),
-        document.getElementById('indicator-step-2'),
-        document.getElementById('indicator-step-3')
-    ];
-    
-    const stepLines = document.querySelectorAll('.step-line');
-    
-    // Buttons
-    const btnNext1 = document.getElementById('btn-next-1');
-    const btnNext2 = document.getElementById('btn-next-2');
-    const btnPrev2 = document.getElementById('btn-prev-2');
-    const btnPrev3 = document.getElementById('btn-prev-3');
-    const btnFinish = document.getElementById('btn-finish');
-    
-    const btnUploadFile = document.getElementById('btn-upload-file');
-    const btnDownloadTpl = document.getElementById('btn-download-tpl');
-    const dataOptionsContainer = document.getElementById('data-options-container');
-    const columnMappingContainer = document.getElementById('column-mapping');
-    
-    // First Landing Elements
-    const firstLanding = document.getElementById('first-landing');
-    const btnGotoDashboard = document.getElementById('btn-goto-dashboard');
-    const landingWelcome = document.getElementById('landing-welcome');
-    const landingAssetName = document.getElementById('landing-asset-name');
-    
-    // Inputs
-    const inputCompany = document.getElementById('ob-company');
-    const inputIndustry = document.getElementById('ob-industry');
-    const industryCards = document.querySelectorAll('.industry-card');
-    const inputCoreAsset = document.getElementById('ob-core-asset');
-    const assetLabelDisplay = document.getElementById('asset-label-display');
-    
-    let currentStep = 0;
-    let SYSTEM_CORE_ASSET = '';
+const obState = {
+    company_name: "",
+    industry: "",
+    team_size: "",
+    challenge: "",
+    core_asset: "",
+    file_uploaded: false
+};
 
-    // Step Navigation Function
-    function goToStep(stepIndex) {
-        // Hide all steps
-        steps.forEach(s => s.classList.remove('active'));
-        // Show target step
-        steps[stepIndex].classList.add('active');
-        
-        // Update Indicators
-        indicators.forEach((ind, idx) => {
-            if (idx === stepIndex) {
-                ind.classList.add('active');
-                ind.classList.remove('completed');
-            } else if (idx < stepIndex) {
-                ind.classList.remove('active');
-                ind.classList.add('completed');
-                ind.innerHTML = '<i class="fa-solid fa-check"></i>';
-            } else {
-                ind.classList.remove('active', 'completed');
-                ind.innerHTML = idx + 1;
-            }
-        });
-        
-        // Update Lines
-        stepLines.forEach((line, idx) => {
-            if (idx < stepIndex) {
-                line.classList.add('active');
-            } else {
-                line.classList.remove('active');
-            }
-        });
-
-        currentStep = stepIndex;
-    }
-
-    // Event Listeners for Navigation
-    btnNext1.addEventListener('click', () => {
-        // Validation could be added here
-        goToStep(1);
-    });
-
-    btnNext2.addEventListener('click', () => {
-        SYSTEM_CORE_ASSET = inputCoreAsset.value.trim() || 'Recurso Base';
-        assetLabelDisplay.innerText = `(Vincular a: ${SYSTEM_CORE_ASSET})`;
-        goToStep(2);
-    });
-
-    btnPrev2.addEventListener('click', () => goToStep(0));
-    btnPrev3.addEventListener('click', () => goToStep(1));
-
-    // Industry Selection & Theming
-    industryCards.forEach(card => {
-        card.addEventListener('click', () => {
-            // Remove selected class from all
-            industryCards.forEach(c => c.classList.remove('selected'));
-            // Add to clicked
-            card.classList.add('selected');
-            
-            const industry = card.getAttribute('data-industry');
-            inputIndustry.value = industry;
-            
-            // Apply Theme based on industry
-            applyTheme(industry);
-        });
-    });
-
-    function applyTheme(industry) {
-        const root = document.documentElement;
-        
-        if (industry === 'Clínica') {
-            root.style.setProperty('--primary-color', '#4361ee'); // Blue
-            // Icon replacements would happen here on the main dashboard if needed
-        } else if (industry === 'Taller') {
-            root.style.setProperty('--primary-color', '#e67e22'); // Orange
-            // Replace some icons in sidebar just to demo the effect
-            document.querySelectorAll('.sidebar .fa-notes-medical, .sidebar .fa-heart-pulse').forEach(icon => {
-                icon.className = 'fa-solid fa-screwdriver-wrench logo-icon';
-            });
-        } else if (industry === 'Servicios') {
-            root.style.setProperty('--primary-color', '#8A64D6'); // Purple
-            document.querySelectorAll('.sidebar .fa-notes-medical, .sidebar .fa-heart-pulse').forEach(icon => {
-                icon.className = 'fa-solid fa-briefcase logo-icon';
-            });
+// Navegación de Pasos
+function goToStep(step) {
+    // Validaciones antes de avanzar
+    if (step === 3) { // Intentando ir de 2 a 3
+        const company = document.getElementById('ob-company').value.trim();
+        const industry = document.getElementById('ob-industry').value;
+        if (!company || !industry || !obState.team_size) {
+            alert('Por favor, completa Nombre, Industria y Tamaño de equipo.');
+            return;
         }
+        obState.company_name = company;
+        obState.industry = industry;
+    }
+    
+    if (step === 4) { // Intentando ir de 3 a 4
+        const asset = document.getElementById('ob-asset').value.trim();
+        if (!asset) {
+            alert('Por favor, indica tu activo crítico.');
+            return;
+        }
+        obState.core_asset = asset;
+    }
+    
+    if (step === 5) { // Preparar confirmación
+        renderConfirmation();
     }
 
-    // Step 3: Mock File Upload Validation
-    btnUploadFile.addEventListener('click', () => {
-        // Simulate file picker open and selection delay
-        btnUploadFile.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Analizando Estructura...';
-        btnUploadFile.style.pointerEvents = 'none';
+    // Ocultar todos los steps
+    document.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active'));
+    // Mostrar target
+    document.getElementById(`wizard-step-${step}`).classList.add('active');
+
+    // Controlar Header de Indicadores
+    const header = document.getElementById('ob-header');
+    if (step === 1 || step === 5) {
+        header.style.display = 'none';
+    } else {
+        header.style.display = 'block';
+        updateIndicators(step);
+    }
+}
+
+function updateIndicators(step) {
+    const bar = document.getElementById('progress-bar');
+    if (bar) {
+        // Calculamos el porcentaje:
+        // Paso 2 = 33%
+        // Paso 3 = 66%
+        // Paso 4 = 100%
+        let percentage = 0;
+        if (step === 2) percentage = 33;
+        if (step === 3) percentage = 66;
+        if (step === 4) percentage = 100;
         
-        setTimeout(() => {
-            dataOptionsContainer.style.display = 'none';
-            columnMappingContainer.style.display = 'block';
-            btnFinish.style.display = 'block';
-        }, 1500);
+        bar.style.width = percentage + '%';
+    }
+}
+
+// Interacciones UI - Botones (Paso 2)
+document.addEventListener('DOMContentLoaded', () => {
+    // Team Grid
+    document.querySelectorAll('.grid-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.grid-btn').forEach(b => b.classList.remove('selected'));
+            e.target.classList.add('selected');
+            obState.team_size = e.target.getAttribute('data-value');
+        });
     });
 
-    // Generate and Download Excel Template
-    btnDownloadTpl.addEventListener('click', () => {
-        // Create a new workbook
-        const wb = XLSX.utils.book_new();
-
-        // 1. VENTAS
-        const wsVentas = XLSX.utils.aoa_to_sheet([
-            ["Fecha", "Ítem_Vendido", "Categoría", "Precio_Venta", "Especialista_ID", "Cliente_ID"],
-            ["2026-04-29", "Consulta Especialista", "Servicio", 150000, "ESP-001", "CLI-992"],
-            ["2026-04-29", "Procedimiento Menor", "Cirugía", 850000, "ESP-002", "CLI-105"]
-        ]);
-        XLSX.utils.book_append_sheet(wb, wsVentas, "VENTAS");
-
-        // 2. OPERACIONES
-        const wsOperaciones = XLSX.utils.aoa_to_sheet([
-            ["Fecha", "Recurso_ID", "Hora_Inicio", "Hora_Fin", "Estado"],
-            ["2026-04-29", "Sala-101", "08:00", "08:45", "Cumplida"],
-            ["2026-04-29", "Sala-102", "09:00", "10:00", "No-Show"]
-        ]);
-        XLSX.utils.book_append_sheet(wb, wsOperaciones, "OPERACIONES");
-
-        // 3. COSTOS
-        const wsCostos = XLSX.utils.aoa_to_sheet([
-            ["Ítem_Vendido", "Costo_Insumo", "Gasto_Fijo_Asociado"],
-            ["Consulta Especialista", 25000, 15000],
-            ["Procedimiento Menor", 350000, 120000]
-        ]);
-        XLSX.utils.book_append_sheet(wb, wsCostos, "COSTOS");
-
-        // Generate and download the file
-        XLSX.writeFile(wb, "Sentinel_Template_Dorado.xlsx");
+    // Challenge Stack
+    document.querySelectorAll('.stack-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.stack-btn').forEach(b => b.classList.remove('selected'));
+            e.target.classList.add('selected');
+            obState.challenge = e.target.getAttribute('data-value');
+        });
     });
 
-    // Finish Wizard -> Transition to First Landing
-    btnFinish.addEventListener('click', () => {
-        // Check if mappings are selected (optional validation)
-        const priceMap = document.getElementById('map-price').value;
-        const costMap = document.getElementById('map-cost').value;
-        const resourceMap = document.getElementById('map-resource').value;
-        
-        btnFinish.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Procesando Insights...';
-        
-        // Populate First Landing Dynamic Text
-        const companyName = inputCompany.value.trim() || 'Empresa';
-        const industryName = inputIndustry.value || 'General';
-        landingWelcome.innerText = `Bienvenido, ${companyName} | Empresa: ${industryName}`;
-        landingAssetName.innerText = SYSTEM_CORE_ASSET;
+    // File Input (Paso 4)
+    const fileInput = document.getElementById('file-input');
+    const uploadZone = document.getElementById('upload-zone');
+    
+    if(fileInput && uploadZone) {
+        fileInput.addEventListener('change', (e) => {
+            if(e.target.files.length > 0) {
+                handleFileUpload(e.target.files[0].name);
+            }
+        });
 
-        setTimeout(() => {
-            // Fade out wizard
-            wizardContainer.style.opacity = '0';
-            
-            setTimeout(() => {
-                wizardContainer.style.display = 'none';
-                // Show First Landing
-                firstLanding.style.display = 'flex';
-                // Trigger a reflow
-                void firstLanding.offsetWidth;
-                firstLanding.style.opacity = '1';
-            }, 500);
-        }, 1200);
-    });
-
-    // Transition: First Landing -> Dashboard
-    btnGotoDashboard.addEventListener('click', () => {
-        btnGotoDashboard.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Cargando Centro de Mando...';
-        
-        setTimeout(() => {
-            firstLanding.style.opacity = '0';
-            
-            setTimeout(() => {
-                firstLanding.style.display = 'none';
-                mainDashboard.style.display = 'flex';
-                void mainDashboard.offsetWidth;
-                mainDashboard.style.opacity = '1';
-                
-                // Trigger chart rendering in dashboard
-                if (typeof window.dispatchEvent === 'function') {
-                    window.dispatchEvent(new Event('resize'));
-                }
-            }, 500);
-        }, 800);
-    });
+        // Drag & Drop
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            if(e.dataTransfer.files.length > 0) {
+                handleFileUpload(e.dataTransfer.files[0].name);
+            }
+        });
+    }
 });
+
+function handleFileUpload(filename) {
+    const zone = document.getElementById('upload-zone');
+    zone.classList.add('success');
+    zone.innerHTML = `<i class="fa-solid fa-check-circle text-success" style="font-size: 40px; margin-bottom: 15px;"></i>
+                      <h4 style="margin-bottom: 5px; color: var(--success-color);">¡Archivo detectado!</h4>
+                      <p style="font-size: 13px; color: var(--text-muted);">${filename}</p>`;
+    obState.file_uploaded = true;
+    
+    setTimeout(() => {
+        goToStep(5);
+    }, 1500);
+}
+
+function skipDataUpload() {
+    obState.file_uploaded = false;
+    goToStep(5);
+}
+
+function updateAssetPlaceholder() {
+    const ind = document.getElementById('ob-industry').value;
+    const txt = document.getElementById('ob-asset');
+    
+    const placeholders = {
+        'Salud': 'Ej: Salas de cirugía, Equipos médicos, Médicos...',
+        'Automotriz': 'Ej: Máquinas CNC, Mecánicos, Vehículos en taller...',
+        'Retail': 'Ej: Puntos de venta, Vendedores, Inventario...',
+        'SaaS': 'Ej: Servidores, Desarrolladores, Clientes activos...',
+        'Consultoría': 'Ej: Horas de consultor, Proyectos activos...',
+        'Manufactura': 'Ej: Líneas de ensamblaje, Materia prima...',
+        'Otro': 'Ej: Máquinas, Personal, Inventario...'
+    };
+    
+    txt.placeholder = placeholders[ind] || placeholders['Otro'];
+}
+
+function renderConfirmation() {
+    document.getElementById('summary-name').innerText = obState.company_name;
+    document.getElementById('summary-industry').innerText = obState.industry;
+    document.getElementById('summary-team').innerText = `${obState.team_size} personas`;
+    document.getElementById('summary-asset').innerText = obState.core_asset;
+
+    const statusEl = document.getElementById('summary-data-status');
+    const diagCard = document.getElementById('diagnosis-card');
+
+    if (obState.file_uploaded) {
+        statusEl.innerHTML = '<i class="fa-solid fa-check text-success"></i> Datos Cargados';
+        diagCard.innerHTML = `
+            <div style="font-size: 13px; font-weight: 600; color: var(--success-color); margin-bottom: 10px; display: flex; align-items: center; gap: 5px;"><i class="fa-solid fa-wand-magic-sparkles"></i> Escaneo IA Completado</div>
+            <h4 style="margin-bottom: 15px; font-size: 16px;">Diagnóstico de ${obState.core_asset}</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div style="background: #f8fafc; padding: 10px; border-radius: 8px;">
+                    <span style="font-size: 11px; color: var(--text-muted); display: block;">Margen Promedio</span>
+                    <span style="font-size: 18px; font-weight: 700; color: var(--primary-color);">24%</span>
+                </div>
+                <div style="background: #f8fafc; padding: 10px; border-radius: 8px;">
+                    <span style="font-size: 11px; color: var(--text-muted); display: block;">Oportunidad</span>
+                    <span style="font-size: 18px; font-weight: 700; color: var(--warning-color);">30%</span>
+                </div>
+            </div>
+            <div style="font-size: 13px; color: var(--text-color); border-left: 3px solid var(--primary-color); padding-left: 10px;">
+                <strong>Quick Win:</strong> Hay capacidad subutilizada en fines de semana.
+            </div>
+        `;
+    } else {
+        statusEl.innerHTML = '<i class="fa-solid fa-clock text-warning"></i> Datos Pendientes';
+        diagCard.innerHTML = `
+            <div style="font-size: 13px; font-weight: 600; color: var(--primary-color); margin-bottom: 10px; display: flex; align-items: center; gap: 5px;"><i class="fa-solid fa-lightbulb"></i> Potencial de NRV</div>
+            <h4 style="margin-bottom: 10px; font-size: 16px;">¿Qué descubrirás aquí?</h4>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Al cargar datos sobre <strong>${obState.core_asset}</strong>, NRV detectará automáticamente anomalías, calculará tu margen real y te dará alertas de negocio.</p>
+            <div style="display: flex; gap: 10px; font-size: 12px; color: var(--primary-color);">
+                <span style="background: rgba(67, 97, 238, 0.1); padding: 5px 10px; border-radius: 20px;">Rentabilidad</span>
+                <span style="background: rgba(67, 97, 238, 0.1); padding: 5px 10px; border-radius: 20px;">Cuellos de botella</span>
+            </div>
+        `;
+    }
+}
+
+function finishOnboarding() {
+    // Guardar en localStorage para uso global
+    localStorage.setItem('nrv_onboarding_state', JSON.stringify(obState));
+    
+    // Transición visual al dashboard
+    const wiz = document.getElementById('onboardingWizard');
+    wiz.style.opacity = '0';
+    setTimeout(() => {
+        wiz.style.display = 'none';
+        
+        // Show main dashboard
+        const main = document.getElementById('dashboard');
+        main.style.display = 'flex';
+        
+        // Disparar evento para app.js
+        window.dispatchEvent(new Event('onboardingCompleted'));
+    }, 500);
+}

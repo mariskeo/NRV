@@ -1,4 +1,26 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Check Onboarding State
+    function checkOnboardingState() {
+        const stateStr = localStorage.getItem('nrv_onboarding_state');
+        const fallbackBanner = document.getElementById('data-upload-fallback');
+        if (stateStr && fallbackBanner) {
+            const state = JSON.parse(stateStr);
+            if (state.file_uploaded === false) {
+                fallbackBanner.style.display = 'flex';
+            } else {
+                fallbackBanner.style.display = 'none';
+            }
+        }
+    }
+    
+    // Check initially
+    checkOnboardingState();
+    
+    // Listen for completion
+    window.addEventListener('onboardingCompleted', () => {
+        checkOnboardingState();
+    });
+
     // Global Alert Collapse Toggle (Top Banner)
     const marginAlertHeader = document.getElementById('marginAlertHeader');
     if (marginAlertHeader) {

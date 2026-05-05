@@ -1597,3 +1597,93 @@ body {
     color: white;
     box-shadow: 0 5px 15px rgba(138, 100, 214, 0.3);
 }
+
+/* =========================================
+   Nuevos Componentes Onboarding Mobile First
+   ========================================= */
+
+/* Button Grid (Paso 2) */
+.button-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.grid-btn {
+    background: white;
+    border: 1px solid var(--border-color);
+    padding: 15px 10px;
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.grid-btn:hover {
+    border-color: var(--primary-color);
+    background: rgba(67, 97, 238, 0.05);
+}
+
+.grid-btn.selected {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
+}
+
+/* Button Stack (Paso 2) */
+.button-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.stack-btn {
+    background: white;
+    border: 1px solid var(--border-color);
+    padding: 15px;
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-color);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+}
+
+.stack-btn:hover {
+    border-color: var(--primary-color);
+    background: rgba(67, 97, 238, 0.05);
+}
+
+.stack-btn.selected {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
+}
+
+/* Upload Zone (Paso 4) */
+.upload-zone {
+    border: 2px dashed #cbd5e1;
+    border-radius: 16px;
+    padding: 40px 20px;
+    background: #f8fafc;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-bottom: 20px;
+}
+
+.upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--primary-color);
+    background: rgba(67, 97, 238, 0.05);
+}
+
+.upload-zone.success {
+    border-color: var(--success-color);
+    background: rgba(46, 204, 113, 0.05);
+}
