@@ -216,3 +216,11 @@ function finishOnboarding() {
         }
     }, 500);
 }
+
+// Inicializar el Event Listener del botón final
+document.addEventListener('DOMContentLoaded', () => {
+    const btnFinish = document.getElementById('btn-goto-dashboard');
+    if (btnFinish) {
+        btnFinish.addEventListener('click', finishOnboarding);
+    }
+});
