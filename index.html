@@ -226,6 +226,17 @@
 
         <!-- Main Content -->
         <main class="main-content">
+            <!-- Header -->
+            <header class="header" style="flex-direction: row; align-items: center; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
+                <div class="brand-logo" style="display: flex; align-items: center; gap: 10px; font-size: 24px; font-weight: 800; color: var(--primary-color); letter-spacing: -1px; width: auto;">
+                    <i class="fa-solid fa-bolt"></i> NRV
+                </div>
+                <div class="search-bar" id="topSearchBar" style="flex: 1; max-width: 400px; margin: 0;">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" placeholder="Buscar Insights...">
+                </div>
+            </header>
+
             <!-- Data Upload Fallback Component (Hidden by default) -->
             <div id="data-upload-fallback" style="display: none; background: #fff8e6; border: 1px solid #ffcc00; border-radius: 12px; padding: 20px; margin-bottom: 25px; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
                 <div style="display: flex; gap: 15px; align-items: center;">
@@ -239,17 +250,7 @@
                     <button class="btn-primary" style="background: #ff9900; border: none; padding: 10px 15px;" onclick="alert('Abriendo modal de carga...')"><i class="fa-solid fa-file-arrow-up"></i> Subir archivo</button>
                     <button class="btn-secondary outline" style="border-color: #ffcc00; color: #b36b00; padding: 10px 15px;" onclick="alert('Descargando plantilla...')"><i class="fa-solid fa-download"></i> Plantilla</button>
                 </div>
-            </div>
-            <!-- Header -->
-            <header class="header" style="flex-direction: row; align-items: center; gap: 15px; flex-wrap: wrap;">
-                <div class="brand-logo" style="display: flex; align-items: center; gap: 10px; font-size: 24px; font-weight: 800; color: var(--primary-color); letter-spacing: -1px; width: auto;">
-                    <i class="fa-solid fa-bolt"></i> NRV
-                </div>
-                <div class="search-bar" id="topSearchBar" style="flex: 1; max-width: 400px; margin: 0;">
-                    <i class="fa-solid fa-search"></i>
-                    <input type="text" placeholder="Buscar Insights...">
-                </div>
-            </header>
+            </div>>
 
             <!-- Dashboard Grid -->
             <div class="grid-container" id="dashboardGrid">
